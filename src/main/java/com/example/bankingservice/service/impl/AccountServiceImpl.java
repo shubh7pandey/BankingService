@@ -24,4 +24,17 @@ public class AccountServiceImpl implements AccountService {
         }
         return accountDTO;
     }
+
+    @Override
+    public AccountDTO updateAccountBalance(AccountDTO accountDTO, Long accountNumber) {
+        Optional<AccountEntity> optEntity = accountRepository.findById(accountNumber);
+        AccountEntity accEntity = null;
+        if(optEntity.isPresent()){
+            accEntity = optEntity.get();
+            accEntity.setAvailableBalance(accountDTO.getAvailableBalance());
+            accEntity = accountRepository.save(accEntity);
+        }
+        BeanUtils.copyProperties(accEntity, accountDTO);
+        return accountDTO;
+    }
 }

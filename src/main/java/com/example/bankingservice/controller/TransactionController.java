@@ -17,11 +17,12 @@ import javax.validation.Valid;
 @RestController
 @RequestMapping("/api/v1/account")
 public class TransactionController {
+    private final String Response_Message="Transfer has been done successfully";
     @Autowired
     private TransactionService transactionService;
     @PostMapping("/transaction")
-    public ResponseEntity<TransactionDTO> makeTransfer(@Valid @RequestBody TransactionDTO transactionDTO){
+    public ResponseEntity<?> makeTransfer(@Valid @RequestBody TransactionDTO transactionDTO){
         transactionService.makeTransfer(transactionDTO);
-        return new ResponseEntity<>(transactionDTO, HttpStatus.CREATED);
+        return new ResponseEntity<>(Response_Message, HttpStatus.CREATED);
     }
 }
