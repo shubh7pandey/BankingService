@@ -43,6 +43,27 @@ public class TransactionServiceImpl implements TransactionService {
         return false;
     }
 
+    @Override
+    public boolean updateBalance(TransactionDTO transactionDTO) {
+        Long sourceAccountNumber = transactionDTO.getSourceAccountNumber();
+        Optional<AccountEntity> sourceAccount = accountRepository
+                .findById(sourceAccountNumber);
+
+        if (sourceAccount.isPresent()) {
+                TransactionEntity transaction = new TransactionEntity();
+                transaction.setAmount(transactionDTO.getAmount());
+                transaction.setSourceAccountNumber(sourceAccount.get().getAccountNumber());
+                updateAccountBalance(sourceAccount.get(), transactionDTO.getAmount());
+                transactionRepository.save(transaction);
+                return true;
+        }
+        return false;
+    }
+    private void updateAccountBalance(AccountEntity sourceAccount, double amount) {
+        sourceAccount.setAvailableBalance((sourceAccount.getAvailableBalance() + amount));
+        accountRepository.save(sourceAccount);
+    }
+
     private void updateAccountBalance(AccountEntity sourceAccount, AccountEntity targetAccount, double amount) {
         sourceAccount.setAvailableBalance((sourceAccount.getAvailableBalance() - amount));
         accountRepository.save(sourceAccount);

@@ -18,10 +18,5 @@ public class AccountController {
         ResponseEntity<AccountDTO> responseEntity = new ResponseEntity<>(accountDTO, HttpStatus.OK);
         return responseEntity;
     }
-    @PatchMapping("/updateBalance/{accountNumber}")
-    public ResponseEntity<AccountDTO> updateAccountBalance(@RequestBody AccountDTO accountDTO, @PathVariable Long accountNumber){
-        accountDTO = accountService.updateAccountBalance(accountDTO, accountNumber);
-        ResponseEntity<AccountDTO> responseEntity = new ResponseEntity<>(accountDTO, HttpStatus.OK);
-        return responseEntity;
-    }
+
 }
