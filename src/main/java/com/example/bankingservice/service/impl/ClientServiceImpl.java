@@ -42,7 +42,6 @@ public class ClientServiceImpl implements ClientService {
         clientEntity = clientRepository.save(clientEntity);
 
         AccountEntity accountEntity = new AccountEntity();
-        accountEntity.setAccountNumber(clientDTO.getAccountNumber());
         accountEntity.setAccountType(clientDTO.getAccountType());
         accountEntity.setAvailableBalance(clientDTO.getAvailableBalance());
         accountEntity.setOwnerName(clientDTO.getOwnerName());

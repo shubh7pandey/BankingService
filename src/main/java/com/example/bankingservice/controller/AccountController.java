@@ -18,5 +18,4 @@ public class AccountController {
         ResponseEntity<AccountDTO> responseEntity = new ResponseEntity<>(accountDTO, HttpStatus.OK);
         return responseEntity;
     }
-
 }

@@ -25,7 +25,6 @@ public class ClientDTO {
     @NotEmpty(message = "Password cannot be empty")
     private String password;
 
-    private Long accountNumber;
     private String accountType;
     private Double availableBalance;
 }

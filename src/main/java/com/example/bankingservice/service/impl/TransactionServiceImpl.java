@@ -2,13 +2,19 @@ package com.example.bankingservice.service.impl;
 
 import com.example.bankingservice.dto.TransactionDTO;
 import com.example.bankingservice.entity.AccountEntity;
+import com.example.bankingservice.entity.BeneficiaryEntity;
 import com.example.bankingservice.entity.TransactionEntity;
+import com.example.bankingservice.exception.BusinessException;
+import com.example.bankingservice.exception.ErrorModel;
 import com.example.bankingservice.repository.AccountRepository;
+import com.example.bankingservice.repository.BeneficiaryRepository;
 import com.example.bankingservice.repository.TransactionRepository;
 import com.example.bankingservice.service.TransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -17,6 +23,8 @@ public class TransactionServiceImpl implements TransactionService {
     private AccountRepository accountRepository;
     @Autowired
     private TransactionRepository transactionRepository;
+    @Autowired
+    private BeneficiaryRepository beneficiaryRepository;
     @Override
     public boolean makeTransfer(TransactionDTO transactionDTO) {
         // TODO refactor synchronous implementation with messaging queue
@@ -25,7 +33,7 @@ public class TransactionServiceImpl implements TransactionService {
                 .findById(sourceAccountNumber);
 
         Long targetAccountNumber = transactionDTO.getTargetAccountNumber();
-        Optional<AccountEntity> targetAccount = accountRepository
+        Optional<BeneficiaryEntity> targetAccount = beneficiaryRepository
                 .findById(targetAccountNumber);
 
         if (sourceAccount.isPresent() && targetAccount.isPresent()) {
@@ -35,10 +43,18 @@ public class TransactionServiceImpl implements TransactionService {
                 transaction.setSourceAccountNumber(sourceAccount.get().getAccountNumber());
                 transaction.setTargetAccountNumber(targetAccount.get().getAccountNumber());
                 transaction.setTargetOwnerName(targetAccount.get().getOwnerName());
-                updateAccountBalance(sourceAccount.get(),targetAccount.get(), transactionDTO.getAmount());
+                updateAccountBalance(sourceAccount.get(), transactionDTO.getAmount());
                 transactionRepository.save(transaction);
                 return true;
             }
+        }
+        else{
+            List<ErrorModel> errorModelList = new ArrayList<>();
+            ErrorModel errorModel = new ErrorModel();
+            errorModel.setCode("INVALID_TRANSACTION");
+            errorModel.setMessage("Incorrect Transaction Details");
+            errorModelList.add(errorModel);
+            throw new BusinessException(errorModelList);
         }
         return false;
     }
@@ -53,22 +69,22 @@ public class TransactionServiceImpl implements TransactionService {
                 TransactionEntity transaction = new TransactionEntity();
                 transaction.setAmount(transactionDTO.getAmount());
                 transaction.setSourceAccountNumber(sourceAccount.get().getAccountNumber());
-                updateAccountBalance(sourceAccount.get(), transactionDTO.getAmount());
+                updateAccountBalance(sourceAccount.get(), -transactionDTO.getAmount());
                 transactionRepository.save(transaction);
                 return true;
         }
-        return false;
+        else{
+            List<ErrorModel> errorModelList = new ArrayList<>();
+            ErrorModel errorModel = new ErrorModel();
+            errorModel.setCode("INVALID_TRANSACTION");
+            errorModel.setMessage("Incorrect Transaction Details");
+            errorModelList.add(errorModel);
+            throw new BusinessException(errorModelList);
+        }
     }
     private void updateAccountBalance(AccountEntity sourceAccount, double amount) {
-        sourceAccount.setAvailableBalance((sourceAccount.getAvailableBalance() + amount));
-        accountRepository.save(sourceAccount);
-    }
-
-    private void updateAccountBalance(AccountEntity sourceAccount, AccountEntity targetAccount, double amount) {
         sourceAccount.setAvailableBalance((sourceAccount.getAvailableBalance() - amount));
         accountRepository.save(sourceAccount);
-        targetAccount.setAvailableBalance((targetAccount.getAvailableBalance() +amount));
-        accountRepository.save(targetAccount);
     }
 
     // TODO support overdrafts or credit account
@@ -76,4 +92,3 @@ public class TransactionServiceImpl implements TransactionService {
         return (accountBalance - amount) > 0;
     }
 }
-

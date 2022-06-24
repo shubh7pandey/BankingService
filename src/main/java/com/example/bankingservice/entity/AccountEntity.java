@@ -14,6 +14,7 @@ import javax.persistence.*;
 @NoArgsConstructor
 public class AccountEntity {
     @Id
+    @GeneratedValue(strategy=GenerationType.AUTO)
     private Long accountNumber;
     private String accountType;
     private Double availableBalance;
