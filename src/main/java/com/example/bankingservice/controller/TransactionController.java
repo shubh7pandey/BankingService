@@ -30,7 +30,7 @@ public class TransactionController {
         transactionService.updateBalance(transactionDTO);
         return new ResponseEntity<>(Response_Message, HttpStatus.OK);
     }
-    @GetMapping("/")
+    @GetMapping("/allTransactions")
     public ResponseEntity<List<TransactionDTO>> getAllTransaction(){
         List<TransactionDTO> transactions =transactionService.getAllTransaction();
         ResponseEntity<List<TransactionDTO>> responseEntity = new ResponseEntity<>(transactions, HttpStatus.OK);
