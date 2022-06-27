@@ -22,4 +22,3 @@ public class BeneficiaryEntity {
     private String bankName;
     private Long ifscCode;
 }
-

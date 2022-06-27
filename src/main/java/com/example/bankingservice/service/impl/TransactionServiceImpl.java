@@ -1,5 +1,6 @@
 package com.example.bankingservice.service.impl;
 
+import com.example.bankingservice.dto.BeneficiaryDTO;
 import com.example.bankingservice.dto.TransactionDTO;
 import com.example.bankingservice.entity.AccountEntity;
 import com.example.bankingservice.entity.BeneficiaryEntity;
@@ -10,6 +11,7 @@ import com.example.bankingservice.repository.AccountRepository;
 import com.example.bankingservice.repository.BeneficiaryRepository;
 import com.example.bankingservice.repository.TransactionRepository;
 import com.example.bankingservice.service.TransactionService;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -47,6 +49,14 @@ public class TransactionServiceImpl implements TransactionService {
                 transactionRepository.save(transaction);
                 return true;
             }
+            else{
+                List<ErrorModel> errorModelList = new ArrayList<>();
+                ErrorModel errorModel = new ErrorModel();
+                errorModel.setCode("INVALID_TRANSACTION");
+                errorModel.setMessage("Amount is not available for make transfer");
+                errorModelList.add(errorModel);
+                throw new BusinessException(errorModelList);
+            }
         }
         else{
             List<ErrorModel> errorModelList = new ArrayList<>();
@@ -56,7 +66,6 @@ public class TransactionServiceImpl implements TransactionService {
             errorModelList.add(errorModel);
             throw new BusinessException(errorModelList);
         }
-        return false;
     }
 
     @Override
@@ -82,6 +91,24 @@ public class TransactionServiceImpl implements TransactionService {
             throw new BusinessException(errorModelList);
         }
     }
+
+    @Override
+    public List<TransactionDTO> getAllTransaction() {
+        List<TransactionEntity> transactionEntities = transactionRepository.findAll();
+        List<TransactionDTO> transactionDtos = null;
+
+        if(transactionEntities != null && !transactionEntities.isEmpty()){// not null & not empty
+            transactionDtos = new ArrayList<>();
+            TransactionDTO dto = null;
+            for(TransactionEntity te : transactionEntities){
+                dto = new TransactionDTO();
+                BeanUtils.copyProperties(te, dto);
+                transactionDtos.add(dto);
+            }
+        }
+        return transactionDtos;
+    }
+
     private void updateAccountBalance(AccountEntity sourceAccount, double amount) {
         sourceAccount.setAvailableBalance((sourceAccount.getAvailableBalance() - amount));
         accountRepository.save(sourceAccount);

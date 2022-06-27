@@ -1,6 +1,7 @@
 package com.example.bankingservice.controller;
 
 import com.example.bankingservice.dto.AccountDTO;
+import com.example.bankingservice.dto.BeneficiaryDTO;
 import com.example.bankingservice.dto.ClientDTO;
 import com.example.bankingservice.dto.TransactionDTO;
 import com.example.bankingservice.service.TransactionService;
@@ -11,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/account")
@@ -27,5 +29,12 @@ public class TransactionController {
     public ResponseEntity<?> updateBalance(@RequestBody TransactionDTO transactionDTO){
         transactionService.updateBalance(transactionDTO);
         return new ResponseEntity<>(Response_Message, HttpStatus.OK);
+    }
+    @GetMapping("/")
+    public ResponseEntity<List<TransactionDTO>> getAllTransaction(){
+        List<TransactionDTO> transactions =transactionService.getAllTransaction();
+        ResponseEntity<List<TransactionDTO>> responseEntity = new ResponseEntity<>(transactions, HttpStatus.OK);
+        //responseEntity = ResponseEntity.ok(books);
+        return responseEntity;
     }
 }
